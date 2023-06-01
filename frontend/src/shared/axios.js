@@ -16,4 +16,6 @@ export const apis = {
   // search
   get_depth1_info: (summonerName) =>
     api.get(`/depth1Info`, { params: { summonerName } }),
+  get_depth2_basic_info: (ID) =>
+    api.get(`/depth2BasicInfo`, { params: { ID } }),
 };

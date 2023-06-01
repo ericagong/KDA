@@ -17,14 +17,14 @@ const base = {
 };
 
 // depth 1: summonerName에서 PPUID, 프로필 아이콘 ID, 소환사 레벨, 최근 게임 시점 추출
-async function getSummonerInfo(summonerName) {
+async function getD1Info(summonerName) {
   try {
     const res = await axios.get(
       `${base.SERVER_KR}/lol/summoner/v4/summoners/by-name/${summonerName}/?api_key=${base.API_KEY}`
     );
 
     console.log(
-      `[getSummonerInfo]
+      `[getD1Info]
 				ID: ${res.data.id},
 				PPUID: ${res.data.puuid},
 				PROFILE_ICON_ID: ${res.data.profileIconId},
@@ -47,11 +47,53 @@ async function getSummonerInfo(summonerName) {
 
 app.get("/depth1Info", async (req, res) => {
   const summonerName = req.query.summonerName;
-  const summonerInfo = await getSummonerInfo(summonerName);
-  res.json(summonerInfo);
+  const D1Info = await getD1Info(summonerName);
+  res.json(D1Info);
 });
 
-// depth2: ID에서 해당 소환사의 tier, rank, 승/패, LP 추출
+// depth2: ID에서 해당 소환사의 tier, rank, 승/패, LP 추출 + 승률 계산
+async function getD2BasicInfo(ID) {
+  try {
+    const res = await axios.get(
+      `${base.SERVER_KR}/lol/league/v4/entries/by-summoner/${ID}?api_key=${base.API_KEY}`
+    );
+
+    const { tier, rank, wins, losses, leaguePoints, inactive } = res.data[0];
+
+    console.log(
+      `[getD2BasicInfo]
+				TIER: ${tier},
+				RANK: ${rank},
+				WINS: ${wins},
+				LOSSES: ${losses},
+				LEAGUE_POINTS: ${leaguePoints},
+				INACTIVE: ${inactive},
+		`
+    );
+
+    // 승률 계산
+    // TODO NaN 처리
+    const WIN_RATE = (wins / (wins + losses)) * 100;
+
+    return {
+      TIER: tier,
+      RANK: rank,
+      WINS: wins,
+      LOSSES: losses,
+      LEAGUE_POINTS: leaguePoints,
+      WIN_RATE,
+      INACTIVE: inactive,
+    };
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+app.get("/depth2BasicInfo", async (req, res) => {
+  const ID = req.query.ID;
+  const D2BasicInfo = await getD2BasicInfo(ID);
+  res.json(D2BasicInfo);
+});
 
 // depth 2: PPUID에서 최근 [n번째, n+개수) 사이 게임 ID 추출
 
