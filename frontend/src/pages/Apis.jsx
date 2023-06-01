@@ -5,7 +5,7 @@ import { apis } from '../shared/axios'
 const getListFromArr = (arr) => {
   return (
     <>
-      {arr.length > 0
+      {arr?.length > 0
         ? arr.map((item, index) => <li key={index}>{item}</li>)
         : 'no info :('}
     </>
@@ -29,7 +29,8 @@ const Apis = () => {
   const [D1Info, setD1Info] = useState([])
   const [D2BasicInfo, setD2BasicInfo] = useState([])
   const [D2MatchInfo, setD2MatchInfo] = useState([])
-  const [gameList, setGameList] = useState([])
+  console.log(`D2MatchInfo: ${JSON.stringify(D2MatchInfo)}`)
+  const [D3MatchesInfo, setD3MatchesInfo] = useState([])
 
   const submitHandler = (e) => {
     e.preventDefault()
@@ -51,6 +52,7 @@ const Apis = () => {
     try {
       // 1. D1 Info 가져오기
       const res = await apis.get_depth1_info(summonerNames[0])
+      console.log(`[clickHandler] res.data: ${JSON.stringify(res.data)}`)
       setD1Info(res.data)
     } catch (err) {
       console.log(err)
@@ -84,12 +86,33 @@ const Apis = () => {
   }, [D1Info])
 
   useEffect(() => {
+    async function getMatchesInfo() {
+      try {
+        // 2. D3 각 게임별 Match Info 가져오기
+        const matchInfoList = []
+        for (let i = 0; i < D2MatchInfo.length; i++) {
+          const res = await apis.get_depth3_match_info(D2MatchInfo[i])
+          matchInfoList.push(res.data)
+        }
+        setD3MatchesInfo(matchInfoList)
+      } catch (err) {
+        console.log(err)
+      }
+    }
+    getMatchesInfo()
+  }, [D2MatchInfo])
+
+  useEffect(() => {
     console.log(`D2BasicInfo: ${JSON.stringify(D2BasicInfo)}`)
   }, [D2BasicInfo])
 
   useEffect(() => {
     console.log(`D2MatchInfo: ${JSON.stringify(D2MatchInfo)}`)
   }, [D2MatchInfo])
+
+  useEffect(() => {
+    console.log(`D3MatchesInfo: ${JSON.stringify(D3MatchesInfo)}`)
+  }, [D3MatchesInfo])
 
   return (
     <>
@@ -126,7 +149,7 @@ const Apis = () => {
       <section id="depth-3">
         <h2>depth-3</h2>
         <ul id="depth-3-info">
-          <li>summonerName</li>
+          <li>Match Info 렌더링...</li>
         </ul>
       </section>
     </>

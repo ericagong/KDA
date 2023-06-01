@@ -126,48 +126,31 @@ app.get("/depth2MatchInfo", async (req, res) => {
 });
 
 // depth 3: 각 GAMEID에서 해당 게임 정보 추출
+async function getD3MatchInfo(MATCHID) {
+  try {
+    const res = await axios.get(
+      `${base.SERVER_ASIA}/lol/match/v5/matches/${MATCHID}?api_key=${base.API_KEY}`
+    );
 
-// GET past 5 Games by Summoner Name
-// GET localhost:4000/past5Games
-// app.get("/past5Games", async (req, res) => {
-//   const summonerName = req.query.summonerName; // PUUID
-//   // PUUID
-//   const PUUID = await getSummonerInfo(summonerName);
-//   console.log(`PUUID: ${PUUID}`);
+    console.log(
+      `[getD3MatchInfo]
+				MATCH_INFO: ${JSON.stringify(res.data)}
+		`
+    );
 
-//   const API_CALL = `https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/${PUUID}/ids?start=0&count=5&api_key=${API_KEY}`;
+    return {
+      MATCH_INFO: res.data,
+    };
+  } catch (err) {
+    console.log(err);
+  }
+}
 
-//   try {
-//     // get API_CALL
-//     // its going to give us a list of game IDs
-//     const res = await axios.get(API_CALL);
-
-//     // a list of game ID strings
-//     const GAME_IDs = res.data;
-
-//     console.log(`GAME_IDs: ${GAME_IDs}`);
-
-//     // loop through the list of game IDs
-//     // at each game ID, get the information (kda, cs, etc)
-//     var MATCHED_DATA_ARRAY = [];
-//     for (var i = 0; i < GAME_IDs.length; i++) {
-//       const matchID = GAME_IDs[i];
-//       const res = await axios.get(
-//         `https://asia.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${API_KEY}`
-//       );
-//       const MATCH_DATA = res.data;
-//       MATCHED_DATA_ARRAY.push(MATCH_DATA);
-//     }
-
-//     console.log(`MATCHED_DATA_ARRAY: ${MATCHED_DATA_ARRAY}`);
-//   } catch (err) {
-//     console.log(err);
-//   }
-
-//   // save info above in array, give an array as JSON response to client
-//   // [Game1Obh, Game2Obj, Game3Obj, Game4Obj, Game5Obj]
-//   res.json(MATCHED_DATA_ARRAY); // sent to client
-// });
+app.get("/depth3MatchInfo", async (req, res) => {
+  const MATCHID = req.query.MATCHID;
+  const D3MatchInfo = await getD3MatchInfo(MATCHID);
+  res.json(D3MatchInfo);
+});
 
 app.listen(4000, function () {
   console.log(

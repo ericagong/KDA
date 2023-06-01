@@ -20,4 +20,6 @@ export const apis = {
     api.get(`/depth2BasicInfo`, { params: { ID } }),
   get_depth2_match_info: (PPUID) =>
     api.get(`/depth2MatchInfo`, { params: { PPUID } }),
+  get_depth3_match_info: (MATCHID) =>
+    api.get(`/depth3MatchInfo`, { params: { MATCHID } }),
 };
