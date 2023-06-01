@@ -95,7 +95,35 @@ app.get("/depth2BasicInfo", async (req, res) => {
   res.json(D2BasicInfo);
 });
 
+// TODO n -> n+count 사이로 변경
 // depth 2: PPUID에서 최근 [n번째, n+개수) 사이 게임 ID 추출
+async function getD2MatchInfo(PPUID) {
+  const START = 0;
+  const COUNT = 5;
+  try {
+    const res = await axios.get(
+      `${base.SERVER_ASIA}/lol/match/v5/matches/by-puuid/${PPUID}/ids?start=${START}&count=${COUNT}&api_key=${base.API_KEY}`
+    );
+
+    console.log(
+      `[getD2MatchInfo]
+				MATCHES: ${res.data}
+		`
+    );
+
+    return {
+      MATCHES: res.data,
+    };
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+app.get("/depth2MatchInfo", async (req, res) => {
+  const PPUID = req.query.PPUID;
+  const D2MatchInfo = await getD2MatchInfo(PPUID);
+  res.json(D2MatchInfo);
+});
 
 // depth 3: 각 GAMEID에서 해당 게임 정보 추출
 

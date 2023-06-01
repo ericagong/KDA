@@ -18,4 +18,6 @@ export const apis = {
     api.get(`/depth1Info`, { params: { summonerName } }),
   get_depth2_basic_info: (ID) =>
     api.get(`/depth2BasicInfo`, { params: { ID } }),
+  get_depth2_match_info: (PPUID) =>
+    api.get(`/depth2MatchInfo`, { params: { PPUID } }),
 };
