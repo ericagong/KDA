@@ -14,6 +14,6 @@ const api = axios.create({
 
 export const apis = {
   // search
-  single_search: (summonerName) =>
-    api.get(`/past5Games`, { params: { summonerName } }),
+  get_depth1_info: (summonerName) =>
+    api.get(`/depth1Info`, { params: { summonerName } }),
 };
