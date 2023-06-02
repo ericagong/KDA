@@ -23,15 +23,15 @@ async function getD1Info(summonerName) {
       `${base.SERVER_KR}/lol/summoner/v4/summoners/by-name/${summonerName}/?api_key=${base.API_KEY}`
     );
 
-    console.log(
-      `[getD1Info]
-				ID: ${res.data.id},
-				PPUID: ${res.data.puuid},
-				PROFILE_ICON_ID: ${res.data.profileIconId},
-				SUMMONER_LEVEL: ${res.data.summonerLevel}
-				REVISION_DATE: ${res.data.revisionDate},
-		`
-    );
+    // console.log(
+    //   `[getD1Info]
+    // 		ID: ${res.data.id},
+    // 		PPUID: ${res.data.puuid},
+    // 		PROFILE_ICON_ID: ${res.data.profileIconId},
+    // 		SUMMONER_LEVEL: ${res.data.summonerLevel}
+    // 		REVISION_DATE: ${res.data.revisionDate},
+    // `
+    // );
 
     return {
       ID: res.data.id,
@@ -60,16 +60,16 @@ async function getD2BasicInfo(ID) {
 
     const { tier, rank, wins, losses, leaguePoints, inactive } = res.data[0];
 
-    console.log(
-      `[getD2BasicInfo]
-				TIER: ${tier},
-				RANK: ${rank},
-				WINS: ${wins},
-				LOSSES: ${losses},
-				LEAGUE_POINTS: ${leaguePoints},
-				INACTIVE: ${inactive},
-		`
-    );
+    // console.log(
+    //   `[getD2BasicInfo]
+    // 		TIER: ${tier},
+    // 		RANK: ${rank},
+    // 		WINS: ${wins},
+    // 		LOSSES: ${losses},
+    // 		LEAGUE_POINTS: ${leaguePoints},
+    // 		INACTIVE: ${inactive},
+    // `
+    // );
 
     // 승률 계산
     // TODO NaN 처리
@@ -99,17 +99,18 @@ app.get("/depth2BasicInfo", async (req, res) => {
 // depth 2: PPUID에서 최근 [n번째, n+개수) 사이 게임 ID 추출
 async function getD2MatchInfo(PPUID) {
   const START = 0;
-  const COUNT = 5;
+  const COUNT = 10;
+
   try {
     const res = await axios.get(
       `${base.SERVER_ASIA}/lol/match/v5/matches/by-puuid/${PPUID}/ids?start=${START}&count=${COUNT}&api_key=${base.API_KEY}`
     );
 
-    console.log(
-      `[getD2MatchInfo]
-				MATCHES: ${res.data}
-		`
-    );
+    // console.log(
+    //   `[getD2MatchInfo]
+    // 		MATCHES: ${res.data}
+    // `
+    // );
 
     return {
       MATCHES: res.data,
@@ -132,11 +133,11 @@ async function getD3MatchInfo(MATCHID) {
       `${base.SERVER_ASIA}/lol/match/v5/matches/${MATCHID}?api_key=${base.API_KEY}`
     );
 
-    console.log(
-      `[getD3MatchInfo]
-				MATCH_INFO: ${JSON.stringify(res.data)}
-		`
-    );
+    // console.log(
+    //   `[getD3MatchInfo]
+    // 		MATCH_INFO: ${JSON.stringify(res.data)}
+    // `
+    // );
 
     return {
       MATCH_INFO: res.data,
@@ -148,7 +149,119 @@ async function getD3MatchInfo(MATCHID) {
 
 app.get("/depth3MatchInfo", async (req, res) => {
   const MATCHID = req.query.MATCHID;
-  const D3MatchInfo = await getD3MatchInfo(MATCHID);
+  const TARGET_SUMMONER_ID = req.query.TARGET_SUMMONER_ID;
+
+  const response = await getD3MatchInfo(MATCHID);
+
+  const INFO = response.MATCH_INFO.info;
+
+  let PLAYERS = []; // [team1P1, team1P2, team1P3, team1P4, team1P5, team2P1, team2P2, team2P3, team2P4, team2P5]
+  let TOTAL_GOLDS = [0, 0]; // [team1, team2]
+  let TOTAL_KILLS = [0, 0]; // [team1, team2]
+
+  for (let i = 0; i < INFO.participants.length; i++) {
+    let participantDto = INFO.participants[i];
+    let PLAYER_INFO = {
+      SUMMONER: {
+        NAME: participantDto.summonerName,
+        ID: participantDto.summonerId,
+      },
+      WIN: participantDto.win === 1,
+      CHAMPION: {
+        ID: participantDto.championId,
+        NAME: participantDto.championName,
+        LEVEL: participantDto.champLevel,
+      },
+      INGAME_INDEX: {
+        KDA: {
+          KILL: participantDto.kills,
+          DEATH: participantDto.deaths,
+          ASSIST: participantDto.assists,
+        },
+        GOLD: participantDto.goldEarned,
+        DAMAGE: {
+          TO_CHAMPION: participantDto.totalDamageDealtToChampions,
+          TOTAL: participantDto.totalDamageDealt,
+        },
+        WARDS: {
+          CONTROL: participantDto.challenges.controlWardsPlaced,
+          PLACED: participantDto.wardsplaced,
+          KILLED: participantDto.wardskilled,
+        },
+        CS: {
+          // 수정 필요 - CS란 무엇인가? (미니언 + 정글몹 + 적 와드?)
+          TOTAL: participantDto.totalMinionsKilled,
+          PER_MINUTE:
+            participantDto.totalMinionsKilled / (INFO.gameDuration / 6000),
+        },
+      },
+      RUNES: participantDto.perks.styles[0].selections.map(
+        (selection) => selection.perk
+      ), // 총 4개
+      SPELLS: participantDto.perks.styles[1].selections.map(
+        (selection) => selection.perk
+      ), // 총 4개
+      ITEMS: [
+        participantDto.item0,
+        participantDto.item1,
+        participantDto.item2,
+        participantDto.item3,
+        participantDto.item4,
+        participantDto.item5,
+        participantDto.item6,
+      ], // 총 7개
+    };
+
+    PLAYERS.push(PLAYER_INFO);
+
+    if (participantDto.teamId === 100) {
+      // team1
+      TOTAL_GOLDS[0] += parseInt(PLAYER_INFO.INGAME_INDEX.GOLD);
+      TOTAL_KILLS[0] += parseInt(PLAYER_INFO.INGAME_INDEX.KDA.KILL);
+    } else {
+      // team2
+      TOTAL_GOLDS[1] += parseInt(PLAYER_INFO.INGAME_INDEX.GOLD);
+      TOTAL_KILLS[1] += parseInt(PLAYER_INFO.INGAME_INDEX.KDA.KILL);
+    }
+  }
+
+  const TARGET_SUMMONER = PLAYERS.filter(
+    (player) => player.SUMMONER.ID === TARGET_SUMMONER_ID
+  )[0];
+
+  const SUMMONERS = PLAYERS.map((player) => ({
+    SUMMONER_NAME: player.SUMMONER_NAME,
+    CHAMPION: player.CHAMPION,
+  }));
+
+  const summarizedInfo = {
+    GAME_CREATOION: INFO.gameCreation,
+    GAME_DURATION: INFO.gameDuration,
+    TARGET_SUMMONER,
+    SUMMONERS,
+  };
+
+  const extraInfo = {
+    TEAM1_INDEX: {
+      BARON_KILLS: INFO.teams[0].objectives.baron.kills,
+      DRAGON_KILLS: INFO.teams[0].objectives.dragon.kills,
+      TOWER_KILLS: INFO.teams[0].objectives.tower.kills,
+    },
+    TEAM2_INDEX: {
+      BARON_KILLS: INFO.teams[1].objectives.baron.kills,
+      DRAGON_KILLS: INFO.teams[1].objectives.dragon.kills,
+      TOWER_KILLS: INFO.teams[1].objectives.tower.kills,
+    },
+    TOTAL_GOLDS,
+    TOTAL_KILLS,
+    PLAYERS,
+  };
+
+  const D3MatchInfo = {
+    SUMMARIZED_INFO: summarizedInfo,
+    EXTRA_INFO: extraInfo,
+  };
+
   res.json(D3MatchInfo);
 });
 
