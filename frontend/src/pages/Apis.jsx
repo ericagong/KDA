@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import useDidMountEffect from '../hooks/useDidMountEffect'
-import { parseSummonerNames } from '../shared/utils'
+import {
+  parseSummonerNames,
+  getListFromArr,
+  getListFromObj,
+  timeCalculator,
+} from '../shared/utils'
 import { apis } from '../shared/axios'
 import { nanoid } from 'nanoid'
 
@@ -28,39 +33,6 @@ const getSimpleSearchFromArr = (arr) => {
         : 'no info :('}
     </>
   )
-}
-
-const getListFromArr = (arr) => {
-  return (
-    <>
-      {arr?.length > 0
-        ? arr.map((item) => <li key={nanoid()}>{item}</li>)
-        : 'no info :('}
-    </>
-  )
-}
-
-const getListFromObj = (obj) => {
-  return (
-    <>
-      {obj && JSON.stringify(obj) !== '{}'
-        ? Object.entries(obj).map(([k, v]) => {
-            if (typeof v === 'object') {
-              return (
-                <li key={nanoid()}>
-                  {k}
-                  <ul key={nanoid()}>{getListFromObj(v)}</ul>
-                </li>
-              )
-            } else return <li key={nanoid()}>{`${k}: ${v}`}</li>
-          })
-        : 'no info :('}
-    </>
-  )
-}
-
-const timeCalculator = (start, end) => {
-  return end - start
 }
 
 const Apis = () => {
