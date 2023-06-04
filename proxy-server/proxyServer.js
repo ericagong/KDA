@@ -153,6 +153,8 @@ app.get("/depth3MatchInfo", async (req, res) => {
 
   const response = await getD3MatchInfo(MATCHID);
 
+  console.log("here", JSON.stringify(response));
+
   const INFO = response.MATCH_INFO.info;
 
   let PLAYERS = []; // [team1P1, team1P2, team1P3, team1P4, team1P5, team2P1, team2P2, team2P3, team2P4, team2P5]

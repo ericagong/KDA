@@ -36,6 +36,23 @@ export const getListFromObj = (obj) => {
   );
 };
 
+export const flatArrGetListFromObj = (arr) => {
+  return (
+    <>
+      {arr?.length > 0
+        ? arr.map((item, idx) => (
+            <>
+              <ul key={`ul_${item}_${idx}`}>
+                {`Summoner ${idx}`}
+                {getListFromObj(item)}
+              </ul>
+            </>
+          ))
+        : "no info :("}
+    </>
+  );
+};
+
 export const timeCalculator = (start, end) => {
   return end - start;
 };
