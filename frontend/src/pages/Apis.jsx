@@ -7,7 +7,6 @@ import {
   timeCalculator,
 } from '../shared/utils'
 import { apis } from '../shared/axios'
-import { nanoid } from 'nanoid'
 
 const getSimpleSearchFromArr = (arr) => {
   return (
@@ -16,7 +15,7 @@ const getSimpleSearchFromArr = (arr) => {
         ? arr.map((data, index) => {
             return (
               <>
-                <h4 key={nanoid()}>{`Game ${index + 1}`}</h4>
+                <h4>{`Game ${index + 1}`}</h4>
                 <ul className="depth-3-info">
                   <details>
                     <summary>요약 보기</summary>
@@ -115,7 +114,7 @@ const Apis = () => {
 			Call getD2MatchInco()
 		`)
 
-    // TODO 동시 처리 효율성 고려하기
+    // TODO 동시 처리 효율성, race condition 고려하기
     getD2BasicInfo()
     getD2MatchInfo()
   }, [D1Info])
@@ -125,14 +124,21 @@ const Apis = () => {
       try {
         // 2. D3 각 게임별 Match Info 가져오기
         const start = new Date()
-        const matchInfoList = []
-        for (let i = 0; i < D2MatchInfo.length; i++) {
-          const res = await apis.get_depth3_match_info(
-            D2MatchInfo[i],
-            D1Info.ID,
-          )
-          matchInfoList.push(res.data)
-        }
+
+        const matchInfoList = await Promise.all(
+          D2MatchInfo.map((matchID) => {
+            return apis.get_depth3_match_info(matchID, D1Info.ID)
+          }),
+        )
+
+        // const matchInfoList = []
+        // for (let i = 0; i < D2MatchInfo.length; i++) {
+        //   const res = await apis.get_depth3_match_info(
+        //     D2MatchInfo[i],
+        //     D1Info.ID,
+        //   )
+        //   matchInfoList.push(res.data)
+        // }
 
         const end = new Date()
         setTimes((prev) => ({ ...prev, D3Match: timeCalculator(start, end) }))

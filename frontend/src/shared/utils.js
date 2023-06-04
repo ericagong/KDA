@@ -1,5 +1,3 @@
-import { nanoid } from "nanoid";
-
 export const parseSummonerNames = (names) => {
   const parsedNames = names
     .split(",")
@@ -13,7 +11,7 @@ export const getListFromArr = (arr) => {
   return (
     <>
       {arr?.length > 0
-        ? arr.map((item) => <li key={nanoid()}>{item}</li>)
+        ? arr.map((item, idx) => <li key={`${item}_${idx}`}>{item}</li>)
         : "no info :("}
     </>
   );
@@ -23,15 +21,15 @@ export const getListFromObj = (obj) => {
   return (
     <>
       {obj && JSON.stringify(obj) !== "{}"
-        ? Object.entries(obj).map(([k, v]) => {
+        ? Object.entries(obj).map(([k, v], idx) => {
             if (typeof v === "object") {
               return (
-                <li key={nanoid()}>
+                <li key={`${k}_${v}_${idx}`}>
                   {k}
-                  <ul key={nanoid()}>{getListFromObj(v)}</ul>
+                  <ul key={`ul_${k}_${v}_${idx}`}>{getListFromObj(v)}</ul>
                 </li>
               );
-            } else return <li key={nanoid()}>{`${k}: ${v}`}</li>;
+            } else return <li key={`${k}_${v}_${idx}`}>{`${k}: ${v}`}</li>;
           })
         : "no info :("}
     </>
