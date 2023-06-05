@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import SingleSearch from './SingleSearch'
-import MultiSearch from './MultiSearch'
+import SingleSearchApis from './SingleSearchApis'
+import MultiSearchApis from './MultiSearchApis'
 
 const Apis = () => {
   const [tab, setTab] = useState('Single-Search')
@@ -14,7 +14,7 @@ const Apis = () => {
     <>
       <h1>{`Check ${tab} APIs`}</h1>
       <button onClick={toggleSearchModeHandler}>Change search mode!</button>
-      {tab === 'Single-Search' ? <SingleSearch /> : <MultiSearch />}
+      {tab === 'Single-Search' ? <SingleSearchApis /> : <MultiSearchApis />}
     </>
   )
 }

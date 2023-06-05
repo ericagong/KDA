@@ -14,11 +14,8 @@ const Routers = () => {
           <Route path="apis" element={<Apis />} />
         </Route>
         <Route path="/" element={<Main />} />
-        <Route path="/singlesearch/:summoner_name" element={<SingleSearch />} />
-        <Route
-          path="/multisearch/:summoner_name_list"
-          element={<MultiSearch />}
-        />
+        <Route path="/singlesearch" element={<SingleSearch />} />
+        <Route path="/multisearch" element={<MultiSearch />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
