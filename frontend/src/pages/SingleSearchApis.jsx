@@ -34,6 +34,7 @@ const getSimpleSearchFromArr = (arr) => {
   )
 }
 
+// TODO getD2BasicInfo API 변경되어 수정 필요
 const SingleSearchApis = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [summonerNames, setSummonerNames] = useState([])

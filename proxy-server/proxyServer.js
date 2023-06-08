@@ -58,32 +58,29 @@ async function getD2BasicInfo(ID) {
       `${base.SERVER_KR}/lol/league/v4/entries/by-summoner/${ID}?api_key=${base.API_KEY}`
     );
 
-    const { tier, rank, wins, losses, leaguePoints, inactive } = res.data[0];
+    let queueInfo = {};
 
-    // console.log(
-    //   `[getD2BasicInfo]
-    // 		TIER: ${tier},
-    // 		RANK: ${rank},
-    // 		WINS: ${wins},
-    // 		LOSSES: ${losses},
-    // 		LEAGUE_POINTS: ${leaguePoints},
-    // 		INACTIVE: ${inactive},
-    // `
-    // );
+    res.data.forEach((queue) => {
+      const { queueType, tier, rank, wins, losses, leaguePoints, inactive } =
+        queue;
+      // 승률 계산
+      // TODO NaN 처리
+      const WIN_RATE = (wins / (wins + losses)) * 100;
+      const key = /FLEX/.test(queueType) ? "FLEX" : "SOLO";
+      queueInfo[key] = {
+        TIER: tier,
+        RANK: rank,
+        WINS: wins,
+        LOSSES: losses,
+        LEAGUE_POINTS: leaguePoints,
+        WIN_RATE,
+        INACTIVE: inactive,
+      };
+    });
 
-    // 승률 계산
-    // TODO NaN 처리
-    const WIN_RATE = (wins / (wins + losses)) * 100;
+    console.log(queueInfo);
 
-    return {
-      TIER: tier,
-      RANK: rank,
-      WINS: wins,
-      LOSSES: losses,
-      LEAGUE_POINTS: leaguePoints,
-      WIN_RATE,
-      INACTIVE: inactive,
-    };
+    return queueInfo;
   } catch (err) {
     console.log(err);
   }
@@ -152,8 +149,6 @@ app.get("/depth3MatchInfo", async (req, res) => {
   const TARGET_SUMMONER_ID = req.query.TARGET_SUMMONER_ID;
 
   const response = await getD3MatchInfo(MATCHID);
-
-  console.log("here", JSON.stringify(response));
 
   const INFO = response.MATCH_INFO.info;
 

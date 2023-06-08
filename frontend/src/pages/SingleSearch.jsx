@@ -9,7 +9,8 @@ const SingleSearch = () => {
   const params = useParams()
   const [summonerName, setSummonerName] = useState(params.summonerName)
   const [summonerInfo, setSummonerInfo] = useState({})
-  const [seasonInfo, setSeasonInfo] = useState({})
+  const [flexInfo, setFlexInfo] = useState([])
+  const [soloInfo, setSoloInfo] = useState([])
   const [matchIdList, setMatchIdList] = useState([])
   const [matchInfoList, setMatchInfoList] = useState([])
 
@@ -31,7 +32,9 @@ const SingleSearch = () => {
       try {
         const res = await apis.get_depth2_basic_info(summonerInfo.ID)
         console.log(`[getSeasonInfo] res.data: ${JSON.stringify(res.data)}`)
-        setSeasonInfo(res.data)
+        const { FLEX, SOLO } = res.data
+        setFlexInfo(FLEX)
+        setSoloInfo(SOLO)
       } catch (err) {
         console.log(err)
       }
