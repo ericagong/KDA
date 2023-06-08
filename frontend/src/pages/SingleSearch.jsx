@@ -4,6 +4,7 @@ import { apis } from '../shared/axios'
 import useDidMountEffect from '../hooks/useDidMountEffect'
 import SearchBar from '../components/SearchBar'
 import Profile from '../components/single/Profile'
+import QueueSummary from '../components/single/QueueSummary'
 
 const SingleSearch = () => {
   const params = useParams()
@@ -106,6 +107,8 @@ const SingleSearch = () => {
       <h2>SingleSearch Page</h2>
       <SearchBar />
       <Profile {...summonerInfo} />
+      <QueueSummary {...flexInfo} />
+      <QueueSummary {...soloInfo} />
     </>
   )
 }

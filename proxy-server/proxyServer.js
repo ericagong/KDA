@@ -68,6 +68,7 @@ async function getD2BasicInfo(ID) {
       const WIN_RATE = (wins / (wins + losses)) * 100;
       const key = /FLEX/.test(queueType) ? "FLEX" : "SOLO";
       queueInfo[key] = {
+        QUEUE_TYPE: key,
         TIER: tier,
         RANK: rank,
         WINS: wins,
@@ -77,8 +78,6 @@ async function getD2BasicInfo(ID) {
         INACTIVE: inactive,
       };
     });
-
-    console.log(queueInfo);
 
     return queueInfo;
   } catch (err) {
