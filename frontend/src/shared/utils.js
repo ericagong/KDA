@@ -1,3 +1,7 @@
+export const getTime = (timeStampInMs) => {
+  return new Date(timeStampInMs).toLocaleString();
+};
+
 export const parseSummonerNames = (names) => {
   const parsedNames = names
     .split(",")

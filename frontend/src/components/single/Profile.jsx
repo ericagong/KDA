@@ -1,11 +1,9 @@
-import { useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { getTime } from '../../shared/utils'
 
-const Profile = () => {
+const Profile = ({ PROFILE_ICON_ID, SUMMONER_LEVEL, REVISION_DATE }) => {
   return (
     <>
       <h4>Profile</h4>
-      <div className="profile-container"></div>
     </>
   )
 }
