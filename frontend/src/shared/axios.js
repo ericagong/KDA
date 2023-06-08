@@ -16,12 +16,12 @@ export const apis = {
   // search
   get_depth1_info: (summonerName) =>
     api.get(`/depth1Info`, { params: { summonerName } }),
-  get_depth2_basic_info: (ID) =>
-    api.get(`/depth2BasicInfo`, { params: { ID } }),
-  get_depth2_match_info: (PPUID) =>
-    api.get(`/depth2MatchInfo`, { params: { PPUID } }),
-  get_depth3_match_info: (MATCHID, TARGET_SUMMONER_ID) =>
+  get_depth2_basic_info: (id) =>
+    api.get(`/depth2BasicInfo`, { params: { id } }),
+  get_depth2_match_info: (ppuId) =>
+    api.get(`/depth2MatchInfo`, { params: { ppuId } }),
+  get_depth3_match_info: (matchId, targetSummonerId) =>
     api.get(`/depth3MatchInfo`, {
-      params: { MATCHID, TARGET_SUMMONER_ID },
+      params: { matchId, targetSummonerId },
     }),
 };

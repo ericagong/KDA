@@ -1,3 +1,15 @@
+export const getRecentImageURL = (type, payload) => {
+  if (payload === undefined) return "";
+  switch (type) {
+    case "profile_icon_id":
+      return `http://ddragon.leagueoflegends.com/cdn/13.11.1/img/profileicon/${payload}.png`;
+    case "tier":
+      return `https://opgg-static.akamaized.net/images/medals_new/${payload}.png`;
+    default:
+      return "";
+  }
+};
+
 export const getTime = (timeStampInMs) => {
   return new Date(timeStampInMs).toLocaleString();
 };

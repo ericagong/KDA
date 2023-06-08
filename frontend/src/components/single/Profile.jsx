@@ -1,19 +1,21 @@
-import { getTime } from '../../shared/utils'
+import { getRecentImageURL, getTime } from '../../shared/utils'
 
-const Profile = ({ PROFILE_ICON_ID, SUMMONER_LEVEL, REVISION_DATE }) => {
+const Profile = ({ profile_icon_id, summoner_level = 0, revision_date }) => {
   return (
     <>
       <h4>Profile</h4>
       <div className="profile-container">
         <div className="summoner-info-container">
           <div className="summoner-profile-icon">
-            <img
-              src={`http://ddragon.leagueoflegends.com/cdn/13.11.1/img/profileicon/${PROFILE_ICON_ID}.png`}
-              alt="profile-icon"
-            />
-            <div className="summoner-level">{`소환사 레벨: ${SUMMONER_LEVEL}`}</div>
+            {profile_icon_id && (
+              <img
+                src={getRecentImageURL('profile_icon_id', profile_icon_id)}
+                alt="profile-icon"
+              />
+            )}
+            <div className="summoner-level">{`소환사 레벨: ${summoner_level}`}</div>
             <div className="summoner-revision-date">{`최근 변경일: ${getTime(
-              REVISION_DATE,
+              revision_date,
             )}`}</div>
           </div>
         </div>

@@ -1,22 +1,26 @@
+import { getRecentImageURL } from '../../shared/utils'
+
 const QueueSummary = ({
-  QUEUE_TYPE,
-  TIER,
-  RANK,
-  LEAGUE_POINTS,
-  WINS,
-  LOSSES,
-  WIN_RATE,
+  type,
+  tier,
+  rank,
+  league_points,
+  wins,
+  losses,
+  win_rate,
 }) => {
   return (
     <>
-      <h4>{`${QUEUE_TYPE} RANK`}</h4>
+      <h4>{`${type} 랭크`}</h4>
       <div className="queue-index-container">
-        <div className="season-tier">{`티어: ${TIER} ${RANK}`}</div>
-        <div className="season-league-points">{`리그 포인트: ${LEAGUE_POINTS}`}</div>
-        <div className="season-wins-loses">{`${WINS}승 ${LOSSES}패`}</div>
-        <div className="season-win-rate">{`승률: ${WIN_RATE?.toFixed(
-          2,
-        )}%`}</div>
+        <img
+          src={getRecentImageURL('tier', tier?.toLowerCase())}
+          alt="tier-img"
+        />
+        <div className="season-tier">{`티어: ${tier} ${rank}`}</div>
+        <div className="season-league-points">{`리그 포인트: ${league_points}`}</div>
+        <div className="season-wins-loses">{`${wins}승 ${losses}패`}</div>
+        <div className="season-win-rate">{`승률: ${win_rate}%`}</div>
       </div>
     </>
   )

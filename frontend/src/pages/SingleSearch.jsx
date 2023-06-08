@@ -5,6 +5,7 @@ import useDidMountEffect from '../hooks/useDidMountEffect'
 import SearchBar from '../components/SearchBar'
 import Profile from '../components/single/Profile'
 import QueueSummary from '../components/single/QueueSummary'
+import MatchList from '../components/single/MatchList'
 
 const SingleSearch = () => {
   const params = useParams()
@@ -18,9 +19,11 @@ const SingleSearch = () => {
   useEffect(() => {
     const getSummonerInfo = async () => {
       try {
-        const res = await apis.get_depth1_info(summonerName)
-        console.log(`[getSummonerInfo] res.data: ${JSON.stringify(res.data)}`)
-        setSummonerInfo(res.data)
+        const {
+          data: { summoner_info },
+        } = await apis.get_depth1_info(summonerName)
+
+        setSummonerInfo(summoner_info)
       } catch (err) {
         console.log(err)
       }
@@ -31,84 +34,75 @@ const SingleSearch = () => {
   useDidMountEffect(() => {
     const getSeasonInfo = async () => {
       try {
-        const res = await apis.get_depth2_basic_info(summonerInfo.ID)
-        console.log(`[getSeasonInfo] res.data: ${JSON.stringify(res.data)}`)
-        const { FLEX, SOLO } = res.data
-        setFlexInfo(FLEX)
-        setSoloInfo(SOLO)
+        const {
+          data: { flex_info, solo_info },
+        } = await apis.get_depth2_basic_info(summonerInfo.id)
+
+        setFlexInfo(flex_info)
+        setSoloInfo(solo_info)
       } catch (err) {
         console.log(err)
       }
     }
     async function getMatchIdList() {
       try {
-        const res = await apis.get_depth2_match_info(summonerInfo.PPUID)
+        const {
+          data: { match_id_list },
+        } = await apis.get_depth2_match_info(summonerInfo.ppu_id)
 
-        console.log(
-          `[getMatchIdList] res.data: ${JSON.stringify(res.data.MATCHES)}`,
-        )
-
-        setMatchIdList((prev) => [...prev, ...res.data.MATCHES])
+        setMatchIdList((prev) => [...prev, ...match_id_list])
       } catch (err) {
         console.log(err)
       }
     }
-
-    console.log(`** Changed summonerInfo: ${JSON.stringify(summonerInfo)}
-  		Call getSeasonInfo(),
-  		Call getMatchIdList()
-  	`)
-
     // state 간 연관성 없어 race condition 고려 안함
     getSeasonInfo()
     getMatchIdList()
   }, [summonerInfo])
 
-  useDidMountEffect(() => {
-    const getMatchInfoList = async () => {
-      try {
-        const matchInfoList = await Promise.all(
-          matchIdList.map(async (matchID) => {
-            const res = await apis.get_depth3_match_info(
-              matchID,
-              summonerInfo.ID,
-            )
-            return res.data
-          }),
-        )
+  // useDidMountEffect(() => {
+  //   const getMatchInfoList = async () => {
+  //     try {
+  //       const matchInfoList = await Promise.all(
+  //         matchIdList.map(async (matchID) => {
+  //           const res = await apis.get_depth3_match_info(
+  //             matchID,
+  //             summonerInfo.ID,
+  //           )
+  //           return res.data
+  //         }),
+  //       )
 
-        // const matchInfoList = []
-        // for (let i = 0; i < D2MatchInfo.length; i++) {
-        //   const res = await apis.get_depth3_match_info(
-        //     D2MatchInfo[i],
-        //     D1Info.ID,
-        //   )
-        //   matchInfoList.push(res.data)
-        // }
-        console.log(
-          `[getMatchInfoList] matchInfoList: ${JSON.stringify(matchInfoList)}`,
-        )
+  //       // const matchInfoList = []
+  //       // for (let i = 0; i < D2MatchInfo.length; i++) {
+  //       //   const res = await apis.get_depth3_match_info(
+  //       //     D2MatchInfo[i],
+  //       //     D1Info.ID,
+  //       //   )
+  //       //   matchInfoList.push(res.data)
+  //       // }
 
-        setMatchInfoList((prev) => [...prev, ...matchInfoList])
-      } catch (err) {
-        console.log(err)
-      }
-    }
+  //       console.log(
+  //         `[getMatchInfoList] matchInfoList: ${JSON.stringify(matchInfoList)}`,
+  //       )
 
-    console.log(`** matchIDList Changed: ${JSON.stringify(matchIdList)}
-  		Call getMatchInfoList
-  	`)
+  //       setMatchInfoList((prev) => [...prev, ...matchInfoList])
+  //     } catch (err) {
+  //       console.log(err)
+  //     }
+  //   }
 
-    getMatchInfoList()
-  }, [matchIdList])
+  //   getMatchInfoList()
+  // }, [matchIdList])
 
   return (
     <>
       <h2>SingleSearch Page</h2>
       <SearchBar />
       <Profile {...summonerInfo} />
-      <QueueSummary {...flexInfo} />
-      <QueueSummary {...soloInfo} />
+      <QueueSummary type="자유" {...flexInfo} />
+      <QueueSummary type="솔로" {...soloInfo} />
+      {/* <MatchList MATCH_INFO_LIST={matchInfoList} /> */}
     </>
   )
 }
