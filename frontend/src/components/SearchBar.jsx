@@ -23,7 +23,7 @@ const SearchBar = () => {
     setSummonerNames(parsedNames)
   }
 
-  const searchSummonerNameHandler = () => {
+  const searchSummonerNameHandler = async () => {
     if (summonerNames.length === 0) {
       alert('소환사 이름을 입력해주세요.')
       return
@@ -33,13 +33,10 @@ const SearchBar = () => {
       summonerNames.length > 1 ? SEARCH_MODE.MULTI : SEARCH_MODE.SINGLE
 
     if (searchMode === SEARCH_MODE.SINGLE) {
-      navigate('/singlesearch', {
-        state: { summonerName: summonerNames[0] },
-      })
+      navigate(`/singlesearch/${summonerNames[0]}`)
     } else {
-      navigate('/multisearch', {
-        state: { summonerNames: summonerNames },
-      })
+      // TODO multisearch 구현
+      navigate(`/multisearch/${summonerNames.join(',')}`)
     }
   }
 
