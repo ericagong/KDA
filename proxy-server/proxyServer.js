@@ -137,6 +137,7 @@ async function getD3MatchInfo(MATCH_ID) {
 app.get("/depth3MatchInfo", async (req, res) => {
   const matchId = req.query.matchId;
   const targetSummonerId = req.query.targetSummonerId;
+
   const SPELL_DICT = {
     1: "summonerBoost",
     3: "summonerExhaust",
@@ -252,9 +253,9 @@ app.get("/depth3MatchInfo", async (req, res) => {
           },
           CS: {
             total: totalMinionsKilled,
-            per_minute: parseInt(
-              totalMinionsKilled / (INFO.gameDuration / 6000)
-            ).toFixed(1),
+            per_minute: (totalMinionsKilled / (INFO.gameDuration / 60)).toFixed(
+              1
+            ),
           },
           items: [item0, item1, item2, item3, item4, item5, item6], // 총 7개
         },
@@ -277,6 +278,7 @@ app.get("/depth3MatchInfo", async (req, res) => {
     if (summonerId === targetSummonerId) {
       target_team_id = teamId;
       target_summoner = {
+        win: win, // 1 = 승리, 0 = 패배
         summoner: {
           name: summonerName,
           id: summonerId,
@@ -303,9 +305,9 @@ app.get("/depth3MatchInfo", async (req, res) => {
           control_wards: visionWardsBoughtInGame,
           CS: {
             total: totalMinionsKilled,
-            per_minute: parseInt(
-              totalMinionsKilled / (INFO.gameDuration / 6000)
-            ).toFixed(1),
+            per_minute: (totalMinionsKilled / (INFO.gameDuration / 60)).toFixed(
+              1
+            ),
           },
         },
       };

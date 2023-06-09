@@ -1,3 +1,5 @@
+import { getRecentImageURL } from '../../shared/utils'
+
 const calcTime = (timestamp) => {
   const today = new Date()
   const playedDate = new Date(timestamp)
@@ -24,66 +26,100 @@ const calcDuration = (timeInSec) => {
   return `${minutes}분 ${seconds}초`
 }
 
-const MatchSummary = ({ game_creation, game_duration }) => {
-  const getSummonerChampionInfo = (summoner) => {
-    return (
-      <>
-        <div>
-          <div>
-            <img
-              src={`http://ddragon.leagueoflegends.com/cdn/13.11.1/img/champion/${summoner.CHAMPION.NAME}.png`}
-              alt="summoner-champion-img"
-            />
-            <div className="summoner-champion-level">
-              {summoner.CHAMPION.LEVEL}
-            </div>
-          </div>
-          <div>
-            <img
-              src={`https://opgg-static.akamaized.net/meta/images/lol/spell/${summoner.SPELLS[0]}.png`}
-              alt="summoner-spell-img"
-            />
-            <img
-              src={`https://opgg-static.akamaized.net/meta/images/lol/spell/${summoner.SPELLS[1]}.png`}
-              alt="summoner-spell-img"
-            />
-          </div>
-          <div>
-            <img
-              src={`https://opgg-static.akamaized.net/meta/images/lol/perk/${summoner.RUNE}.png`}
-              alt="summoner-rune-style-img"
-            />
-            <img
-              src={`https://opgg-static.akamaized.net/meta/images/lol/perkStyle/${summoner.RUNE_STYLE}.png`}
-              alt="summoner-rune-style-img"
-            />
-          </div>
-          <div>
-            <div>{summoner.INGAME_INDEX.KDA.KILL}</div>
-            <div>{summoner.INGAME_INDEX.KDA.DEATH}</div>
-            <div>{summoner.INGAME_INDEX.KDA.ASSIST}</div>
-          </div>
+const MatchSummary = ({
+  game_creation,
+  game_duration,
+  target_summoner,
+  summoners,
+}) => {
+  const {
+    win,
+    summoner: me,
+    champion,
+    rune,
+    rune_style,
+    spells,
+    items,
+    indexes,
+  } = target_summoner
+  const { KDA, kill_participations, control_wards, CS } = indexes
+  const { blue_team, red_team } = summoners
+
+  const getTeamSummoners = (team) => {
+    return team.map((summoner, idx) => {
+      return (
+        <div key={idx}>
+          <img
+            src={getRecentImageURL('champion', summoner.championName)}
+            alt={`champion_${summoner.championName}_img`}
+          />
+          <div>{summoner.summonerName}</div>
+          {me.id === summoner.summonerId && <div>me</div>}
         </div>
-        <div>
-          {summoner.ITEMS.map((itemID) => {
-            return (
-              <img
-                src={`https://opgg-static.akamaized.net/meta/images/lol/item/${itemID}.png`}
-                alt="summoner-item-img"
-              />
-            )
-          })}
-        </div>
-      </>
-    )
+      )
+    })
   }
 
   return (
     <>
       <div>
+        <h5>Summary</h5>
         <div>
+          <div>솔랭</div>
           <div>{`게임 시작 시간: ${calcTime(game_creation)}`}</div>
+          <div>{win ? '승리' : '패배'}</div>
           <div>{`게임 진행 시간: ${calcDuration(game_duration)}`}</div>
+        </div>
+        <div>
+          <div>
+            <img
+              src={getRecentImageURL('champion', champion.name)}
+              alt={`champion_${champion.name}_img`}
+            />
+            <div>{champion.level}</div>
+          </div>
+          <div>
+            <img
+              src={getRecentImageURL('rune', rune)}
+              alt={`rune_${rune}_img`}
+            />
+            <img
+              src={getRecentImageURL('runeStyle', rune_style)}
+              alt={`rune_${rune_style}_img`}
+            />
+          </div>
+          <div>
+            {spells.map((spell, idx) => (
+              <img
+                key={idx}
+                src={getRecentImageURL('spell', spell)}
+                alt={`spell_${spell}_img`}
+              />
+            ))}
+          </div>
+          <div>
+            {items.map((item, idx) => (
+              <img
+                key={idx}
+                src={getRecentImageURL('item', item)}
+                alt={`item_${item}_img`}
+              />
+            ))}
+          </div>
+        </div>
+        <div>
+          <div>
+            <div>{`K ${KDA.kills}`}</div>
+            <div>{`D ${KDA.deaths}`}</div>
+            <div>{`A ${KDA.assists}`}</div>
+          </div>
+          <div>{`킬관여 ${kill_participations}`}</div>
+          <div>{`제어 와드 ${control_wards}`}</div>
+          <div>{`CS ${CS.total} (${CS.per_minute})`}</div>
+        </div>
+        <div>
+          {getTeamSummoners(blue_team)}
+          {getTeamSummoners(red_team)}
         </div>
       </div>
     </>

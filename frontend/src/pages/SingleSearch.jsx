@@ -67,7 +67,7 @@ const SingleSearch = () => {
           matchIdList.map(async (matchId) => {
             const res = await apis.get_depth3_match_info(
               matchId,
-              summonerInfo.ID,
+              summonerInfo.id,
             )
             return res.data
           }),
