@@ -1,4 +1,7 @@
 import { getRecentImageURL } from '../../shared/utils'
+import ChampRuneSpell from './ChampRuneSpell'
+import ItemList from './ItemList'
+import KDAIndex from './KDAIndex'
 
 const calcTime = (timestamp) => {
   const today = new Date()
@@ -42,7 +45,7 @@ const MatchSummary = ({
     items,
     indexes,
   } = target_summoner
-  const { KDA, kill_participations, control_wards, CS } = indexes
+  const { KDA, control_wards, CS } = indexes
   const { blue_team, red_team } = summoners
 
   const getTeamSummoners = (team) => {
@@ -71,49 +74,19 @@ const MatchSummary = ({
           <div>{`게임 진행 시간: ${calcDuration(game_duration)}`}</div>
         </div>
         <div>
+          <ChampRuneSpell
+            champion={champion}
+            rune={rune}
+            rune_style={rune_style}
+            spells={spells}
+          />
           <div>
-            <img
-              src={getRecentImageURL('champion', champion.name)}
-              alt={`champion_${champion.name}_img`}
-            />
-            <div>{champion.level}</div>
-          </div>
-          <div>
-            <img
-              src={getRecentImageURL('rune', rune)}
-              alt={`rune_${rune}_img`}
-            />
-            <img
-              src={getRecentImageURL('runeStyle', rune_style)}
-              alt={`rune_${rune_style}_img`}
-            />
-          </div>
-          <div>
-            {spells.map((spell, idx) => (
-              <img
-                key={idx}
-                src={getRecentImageURL('spell', spell)}
-                alt={`spell_${spell}_img`}
-              />
-            ))}
-          </div>
-          <div>
-            {items.map((item, idx) => (
-              <img
-                key={idx}
-                src={getRecentImageURL('item', item)}
-                alt={`item_${item}_img`}
-              />
-            ))}
+            <ItemList items={items} />
           </div>
         </div>
         <div>
-          <div>
-            <div>{`K ${KDA.kills}`}</div>
-            <div>{`D ${KDA.deaths}`}</div>
-            <div>{`A ${KDA.assists}`}</div>
-          </div>
-          <div>{`킬관여 ${kill_participations}`}</div>
+          <KDAIndex KDA={KDA} />
+          <div>{`킬관여 ${KDA.kill_participations}`}</div>
           <div>{`제어 와드 ${control_wards}`}</div>
           <div>{`CS ${CS.total} (${CS.per_minute})`}</div>
         </div>

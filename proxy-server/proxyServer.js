@@ -180,6 +180,7 @@ app.get("/depth3MatchInfo", async (req, res) => {
   };
   let target_summoner = {};
   let target_team_id = 100;
+  let target_summoner_kills = 0;
 
   for (let i = 0; i < INFO.participants.length; i++) {
     let participantDto = INFO.participants[i];
@@ -219,7 +220,6 @@ app.get("/depth3MatchInfo", async (req, res) => {
         summonerName,
         summonerId,
         championName,
-        win, // 1 = 승리, 0 = 패배
       },
       extra: {
         champion: {
@@ -277,6 +277,7 @@ app.get("/depth3MatchInfo", async (req, res) => {
 
     if (summonerId === targetSummonerId) {
       target_team_id = teamId;
+      target_summoner_kills = kills;
       target_summoner = {
         win: win, // 1 = 승리, 0 = 패배
         summoner: {
@@ -300,8 +301,8 @@ app.get("/depth3MatchInfo", async (req, res) => {
               deaths === 0
                 ? "Perfect"
                 : ((kills + assists) / deaths).toFixed(2),
+            kill_participations: 0, // 팀 전체 킬 수 계산 후 변경
           },
-          kill_participations: 0, // 팀 전체 킬 수 계산 후 변경
           control_wards: visionWardsBoughtInGame,
           CS: {
             total: totalMinionsKilled,
@@ -314,30 +315,30 @@ app.get("/depth3MatchInfo", async (req, res) => {
     }
   }
 
+  // TODO 킬관여율 식 다시세우기
   // 킬관여율 반영
   for (let i = 0; i < blueTeam.players.length; i++) {
     if (blueTeam.total_kills === 0) continue;
     else {
+      const { kills } = blueTeam.players[i].extra.indexes.KDA;
       blueTeam.players[i].extra.indexes.KDA.kill_participations =
-        parseInt(
-          ((blueTeam.players[i].summary.kills +
-            blueTeam.players[i].summary.assists) /
-            blueTeam.total_kills) *
-            100
-        ) + "%";
+        parseInt((kills / blueTeam.total_kills) * 100) + "%";
     }
   }
   for (let i = 0; i < redTeam.players.length; i++) {
     if (redTeam.total_kills === 0) continue;
     else {
+      const { kills } = redTeam.players[i].extra.indexes.KDA;
       redTeam.players[i].extra.indexes.KDA.kill_participations =
-        parseInt(
-          ((redTeam.players[i].summary.kills +
-            redTeam.players[i].summary.assists) /
-            redTeam.total_kills) *
-            100
-        ) + "%";
+        parseInt((kills / redTeam.total_kills) * 100) + "%";
     }
+  }
+  if (target_team_id === 100) {
+    target_summoner.indexes.KDA.kill_participations =
+      parseInt((target_summoner_kills / blueTeam.total_kills) * 100) + "%";
+  } else {
+    target_summoner.indexes.KDA.kill_participations =
+      parseInt((target_summoner_kills / redTeam.total_kills) * 100) + "%";
   }
 
   let summoners = {
@@ -353,7 +354,7 @@ app.get("/depth3MatchInfo", async (req, res) => {
   };
 
   let blue_team_index = {
-    bardon_kills: INFO.teams[0].objectives.baron.kills,
+    baron_kills: INFO.teams[0].objectives.baron.kills,
     dragon_kills: INFO.teams[0].objectives.dragon.kills,
     tower_kills: INFO.teams[0].objectives.tower.kills,
     total_kills: blueTeam.total_kills,
