@@ -1,13 +1,14 @@
 import MatchSummary from './MatchSummary'
 
-const MatchList = ({ MATCH_INFO_LIST }) => {
-  const matchList = MATCH_INFO_LIST.map((matchInfo) => {
+const MatchList = ({ matchInfoList }) => {
+  const matchList = matchInfoList.map((matchInfo) => {
     return (
       <>
-        <MatchSummary {...matchInfo.SUMMARIZED_INFO} />
+        <MatchSummary {...matchInfo.summarized_info} />
       </>
     )
   })
+
   return (
     <>
       <h4>MatchList</h4>

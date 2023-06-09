@@ -60,40 +60,40 @@ const SingleSearch = () => {
     getMatchIdList()
   }, [summonerInfo])
 
-  // useDidMountEffect(() => {
-  //   const getMatchInfoList = async () => {
-  //     try {
-  //       const matchInfoList = await Promise.all(
-  //         matchIdList.map(async (matchID) => {
-  //           const res = await apis.get_depth3_match_info(
-  //             matchID,
-  //             summonerInfo.ID,
-  //           )
-  //           return res.data
-  //         }),
-  //       )
+  useDidMountEffect(() => {
+    const getMatchInfoList = async () => {
+      try {
+        const matchInfoList = await Promise.all(
+          matchIdList.map(async (matchId) => {
+            const res = await apis.get_depth3_match_info(
+              matchId,
+              summonerInfo.ID,
+            )
+            return res.data
+          }),
+        )
 
-  //       // const matchInfoList = []
-  //       // for (let i = 0; i < D2MatchInfo.length; i++) {
-  //       //   const res = await apis.get_depth3_match_info(
-  //       //     D2MatchInfo[i],
-  //       //     D1Info.ID,
-  //       //   )
-  //       //   matchInfoList.push(res.data)
-  //       // }
+        // const matchInfoList = []
+        // for (let i = 0; i < D2MatchInfo.length; i++) {
+        //   const res = await apis.get_depth3_match_info(
+        //     D2MatchInfo[i],
+        //     D1Info.ID,
+        //   )
+        //   matchInfoList.push(res.data)
+        // }
 
-  //       console.log(
-  //         `[getMatchInfoList] matchInfoList: ${JSON.stringify(matchInfoList)}`,
-  //       )
+        console.log(
+          `[getMatchInfoList] matchInfoList: ${JSON.stringify(matchInfoList)}`,
+        )
 
-  //       setMatchInfoList((prev) => [...prev, ...matchInfoList])
-  //     } catch (err) {
-  //       console.log(err)
-  //     }
-  //   }
+        setMatchInfoList((prev) => [...prev, ...matchInfoList])
+      } catch (err) {
+        console.log(err)
+      }
+    }
 
-  //   getMatchInfoList()
-  // }, [matchIdList])
+    getMatchInfoList()
+  }, [matchIdList])
 
   return (
     <>
@@ -102,7 +102,7 @@ const SingleSearch = () => {
       <Profile {...summonerInfo} />
       <QueueSummary type="자유" {...flexInfo} />
       <QueueSummary type="솔로" {...soloInfo} />
-      {/* <MatchList MATCH_INFO_LIST={matchInfoList} /> */}
+      <MatchList matchInfoList={matchInfoList} />
     </>
   )
 }

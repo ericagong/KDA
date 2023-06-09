@@ -1,16 +1,35 @@
-import { getTime } from '../../shared/utils'
+const calcTime = (timestamp) => {
+  const today = new Date()
+  const playedDate = new Date(timestamp)
+  const timeDiff = today.getTime() - playedDate.getTime()
 
-const MatchSummary = ({
-  GAME_CREATION,
-  GAME_DURATION,
-  TARGET_SUMMONER,
-  SUMMONERS,
-}) => {
+  const monthDiff = parseInt(timeDiff / (1000 * 3600 * 24 * 30))
+  const dayDiff = parseInt(timeDiff / (1000 * 3600 * 24))
+  const hourDiff = parseInt(timeDiff / (1000 * 3600))
+  const minuteDiff = parseInt(timeDiff / (1000 * 60))
+
+  if (monthDiff > 0) return `${monthDiff}달 전`
+  if (dayDiff > 0) return `${dayDiff}일 전`
+  if (hourDiff > 0) return `${hourDiff}시간 전`
+  if (minuteDiff > 0) return `${minuteDiff}분 전`
+  else return `방금 전`
+}
+
+const calcDuration = (timeInSec) => {
+  const minutes = parseInt(timeInSec / 60)
+  const seconds = timeInSec % 60
+
+  if (minutes === 0) return `${seconds}초`
+  if (seconds === 0) return `${minutes}분`
+  return `${minutes}분 ${seconds}초`
+}
+
+const MatchSummary = ({ game_creation, game_duration }) => {
   const getSummonerChampionInfo = (summoner) => {
     return (
       <>
-        <div className="match-summary-middle-top summoner-champion">
-          <div className="summoner-champion-image-container">
+        <div>
+          <div>
             <img
               src={`http://ddragon.leagueoflegends.com/cdn/13.11.1/img/champion/${summoner.CHAMPION.NAME}.png`}
               alt="summoner-champion-img"
@@ -19,7 +38,7 @@ const MatchSummary = ({
               {summoner.CHAMPION.LEVEL}
             </div>
           </div>
-          <div className="summoner-spells">
+          <div>
             <img
               src={`https://opgg-static.akamaized.net/meta/images/lol/spell/${summoner.SPELLS[0]}.png`}
               alt="summoner-spell-img"
@@ -29,7 +48,7 @@ const MatchSummary = ({
               alt="summoner-spell-img"
             />
           </div>
-          <div className="summoner-rune">
+          <div>
             <img
               src={`https://opgg-static.akamaized.net/meta/images/lol/perk/${summoner.RUNE}.png`}
               alt="summoner-rune-style-img"
@@ -39,19 +58,13 @@ const MatchSummary = ({
               alt="summoner-rune-style-img"
             />
           </div>
-          <div className="summoner-kda">
-            <div className="summoner-kda-kills">
-              {summoner.INGAME_INDEX.KDA.KILL}
-            </div>
-            <div className="summoner-kda-deaths">
-              {summoner.INGAME_INDEX.KDA.DEATH}
-            </div>
-            <div className="summoner-kda-assists">
-              {summoner.INGAME_INDEX.KDA.ASSIST}
-            </div>
+          <div>
+            <div>{summoner.INGAME_INDEX.KDA.KILL}</div>
+            <div>{summoner.INGAME_INDEX.KDA.DEATH}</div>
+            <div>{summoner.INGAME_INDEX.KDA.ASSIST}</div>
           </div>
         </div>
-        <div className="match-summary-middle-bottom summoner-items">
+        <div>
           {summoner.ITEMS.map((itemID) => {
             return (
               <img
@@ -67,14 +80,10 @@ const MatchSummary = ({
 
   return (
     <>
-      <div className="match-summary">
-        <div className="match-summary-left">
-          <div className="match-summary-left-top game-creatrion">{`게임 시작 시간: ${getTime(
-            GAME_CREATION,
-          )}`}</div>
-          <div className="match-summary-left-bottom game-duration">{`게임 진행 시간: ${getTime(
-            GAME_DURATION,
-          )}`}</div>
+      <div>
+        <div>
+          <div>{`게임 시작 시간: ${calcTime(game_creation)}`}</div>
+          <div>{`게임 진행 시간: ${calcDuration(game_duration)}`}</div>
         </div>
       </div>
     </>

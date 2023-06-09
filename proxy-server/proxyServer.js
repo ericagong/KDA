@@ -135,8 +135,8 @@ async function getD3MatchInfo(MATCH_ID) {
 }
 
 app.get("/depth3MatchInfo", async (req, res) => {
-  const MATCH_ID = req.query.matchId;
-  const TARGET_SUMMONER_ID = req.query.targetSummonerId;
+  const matchId = req.query.matchId;
+  const targetSummonerId = req.query.targetSummonerId;
   const SPELL_DICT = {
     1: "summonerBoost",
     3: "summonerExhaust",
@@ -156,91 +156,192 @@ app.get("/depth3MatchInfo", async (req, res) => {
     55: "summoner_UltBookSmitePlaceholder",
   };
 
-  const response = await getD3MatchInfo(MATCH_ID);
+  const response = await getD3MatchInfo(matchId);
 
   const INFO = response?.MATCH_INFO.info;
+
   if (INFO === undefined) {
     return;
   }
 
-  let players = []; // [team1P1, team1P2, team1P3, team1P4, team1P5, team2P1, team2P2, team2P3, team2P4, team2P5]
-  let total_golds = [0, 0]; // [team1, team2]
-  let total_kills = [0, 0]; // [team1, team2]
+  // teamId 100: blue, 200: red
+  let blueTeam = {
+    win: 0,
+    players: [],
+    total_golds: 0,
+    total_kills: 0,
+  };
+  let redTeam = {
+    win: 0,
+    players: [],
+    total_golds: 0,
+    total_kills: 0,
+  };
+  let target_summoner = {};
+  let target_team_id = 100;
 
   for (let i = 0; i < INFO.participants.length; i++) {
     let participantDto = INFO.participants[i];
+    let {
+      summonerName,
+      summonerId,
+      teamId,
+      win,
+      championId,
+      championName,
+      champLevel,
+      kills,
+      deaths,
+      assists,
+      goldEarned,
+      totalDamageDealtToChampions,
+      totalDamageDealt,
+      totalDamageTaken,
+      totalMinionsKilled,
+      wardsPlaced,
+      wardsKilled,
+      visionWardsBoughtInGame,
+      item0,
+      item1,
+      item2,
+      item3,
+      item4,
+      item5,
+      item6,
+      perks,
+      summoner1Id,
+      summoner2Id,
+    } = participantDto;
+
     let player_info = {
-      summoner: {
-        name: participantDto.summonerName,
-        id: participantDto.summonerId,
+      summary: {
+        summonerName,
+        summonerId,
+        championName,
+        win, // 1 = 승리, 0 = 패배
       },
-      win: participantDto.win === 1,
-      champion: {
-        id: participantDto.championId,
-        name: participantDto.championName,
-        level: participantDto.champLevel,
+      extra: {
+        champion: {
+          name: championName,
+          id: championId,
+          level: champLevel,
+        },
+        rune: perks.styles[0].selections[0].perk,
+        rune_style: perks.styles[0].style,
+        spells: [SPELL_DICT[summoner1Id], SPELL_DICT[summoner2Id]],
+        indexes: {
+          KDA: {
+            kills,
+            deaths,
+            assists,
+            score:
+              deaths === 0
+                ? "Perfect"
+                : ((kills + assists) / deaths).toFixed(2),
+            kill_participations: 0, // 팀 전체 킬 수 계산 후 변경
+          },
+          damage: {
+            to_champion: totalDamageDealtToChampions,
+            total: totalDamageDealt,
+            taken: totalDamageTaken,
+          },
+          wards: {
+            control: visionWardsBoughtInGame,
+            placed: wardsPlaced,
+            killed: wardsKilled,
+          },
+          CS: {
+            total: totalMinionsKilled,
+            per_minute: parseInt(
+              totalMinionsKilled / (INFO.gameDuration / 6000)
+            ).toFixed(1),
+          },
+          items: [item0, item1, item2, item3, item4, item5, item6], // 총 7개
+        },
       },
-      in_game_index: {
-        KDA: {
-          kills: participantDto.kills,
-          deaths: participantDto.deaths,
-          assists: participantDto.assists,
-        },
-        gold: participantDto.goldEarned,
-        damage: {
-          to_champion: participantDto.totalDamageDealtToChampions,
-          total: participantDto.totalDamageDealt,
-        },
-        wards: {
-          control: participantDto.challenges.controlWardsPlaced,
-          placed: participantDto.wardsplaced,
-          killed: participantDto.wardskilled,
-        },
-        CS: {
-          // 수정 필요 - CS란 무엇인가? (미니언 + 정글몹 + 적 와드?)
-          total: participantDto.totalMinionsKilled,
-          per_minute:
-            participantDto.totalMinionsKilled / (INFO.gameDuration / 6000),
-        },
-      },
-      rune: participantDto.perks.styles[0].selections[0].perk,
-      rune_style: participantDto.perks.styles[0].style,
-      spells: [
-        SPELL_DICT[participantDto.summoner1Id],
-        SPELL_DICT[participantDto.summoner2Id],
-      ],
-      items: [
-        participantDto.item0,
-        participantDto.item1,
-        participantDto.item2,
-        participantDto.item3,
-        participantDto.item4,
-        participantDto.item5,
-        participantDto.item6,
-      ], // 총 7개
     };
 
-    players.push(player_info);
-
-    if (participantDto.teamId === 100) {
-      // team1
-      total_golds[0] += parseInt(player_info.in_game_index.gold);
-      total_kills[0] += parseInt(player_info.in_game_index.KDA.kills);
+    if (teamId === 100) {
+      // teamBlue
+      blueTeam.players.push(player_info);
+      blueTeam.win = win;
+      blueTeam.total_golds += goldEarned;
+      blueTeam.total_kills += kills;
     } else {
-      // team2
-      total_golds[1] += parseInt(player_info.in_game_index.gold);
-      total_kills[1] += parseInt(player_info.in_game_index.KDA.kills);
+      redTeam.players.push(player_info);
+      redTeam.win = win;
+      redTeam.total_golds += goldEarned;
+      redTeam.total_kills += kills;
+    }
+
+    if (summonerId === targetSummonerId) {
+      target_team_id = teamId;
+      target_summoner = {
+        summoner: {
+          name: summonerName,
+          id: summonerId,
+        },
+        champion: {
+          name: championName,
+          level: champLevel,
+        },
+        rune: perks.styles[0].selections[0].perk,
+        rune_style: perks.styles[0].style,
+        spells: [SPELL_DICT[summoner1Id], SPELL_DICT[summoner2Id]],
+        items: [item0, item1, item2, item3, item4, item5, item6],
+        indexes: {
+          KDA: {
+            kills,
+            deaths,
+            assists,
+            score:
+              deaths === 0
+                ? "Perfect"
+                : ((kills + assists) / deaths).toFixed(2),
+          },
+          kill_participations: 0, // 팀 전체 킬 수 계산 후 변경
+          control_wards: visionWardsBoughtInGame,
+          CS: {
+            total: totalMinionsKilled,
+            per_minute: parseInt(
+              totalMinionsKilled / (INFO.gameDuration / 6000)
+            ).toFixed(1),
+          },
+        },
+      };
     }
   }
 
-  let target_summoner = players.filter(
-    (player) => player.summoner.id === TARGET_SUMMONER_ID
-  )[0];
+  // 킬관여율 반영
+  for (let i = 0; i < blueTeam.players.length; i++) {
+    if (blueTeam.total_kills === 0) continue;
+    else {
+      blueTeam.players[i].extra.indexes.KDA.kill_participations =
+        parseInt(
+          ((blueTeam.players[i].summary.kills +
+            blueTeam.players[i].summary.assists) /
+            blueTeam.total_kills) *
+            100
+        ) + "%";
+    }
+  }
+  for (let i = 0; i < redTeam.players.length; i++) {
+    if (redTeam.total_kills === 0) continue;
+    else {
+      redTeam.players[i].extra.indexes.KDA.kill_participations =
+        parseInt(
+          ((redTeam.players[i].summary.kills +
+            redTeam.players[i].summary.assists) /
+            redTeam.total_kills) *
+            100
+        ) + "%";
+    }
+  }
 
-  const summoners = players.map((player) => ({
-    summoner_name: player.summoner_name,
-    champion: player.champion,
-  }));
+  let summoners = {
+    blue_team: blueTeam.players.map((player) => player.summary),
+    red_team: redTeam.players.map((player) => player.summary),
+  };
 
   const summarizedInfo = {
     game_creation: INFO.gameCreation,
@@ -249,20 +350,32 @@ app.get("/depth3MatchInfo", async (req, res) => {
     summoners,
   };
 
+  let blue_team_index = {
+    bardon_kills: INFO.teams[0].objectives.baron.kills,
+    dragon_kills: INFO.teams[0].objectives.dragon.kills,
+    tower_kills: INFO.teams[0].objectives.tower.kills,
+    total_kills: blueTeam.total_kills,
+    total_golds: blueTeam.total_golds,
+  };
+  let red_team_index = {
+    baron_kills: INFO.teams[1].objectives.baron.kills,
+    dragon_kills: INFO.teams[1].objectives.dragon.kills,
+    tower_kills: INFO.teams[1].objectives.tower.kills,
+    total_kills: redTeam.total_kills,
+    total_golds: redTeam.total_golds,
+  };
+
+  let myTeam = target_team_id === 100 ? blueTeam : redTeam;
+  let enemyTeam = target_team_id === 100 ? redTeam : blueTeam;
+  let myTeamIndex = target_team_id === 100 ? blue_team_index : red_team_index;
+  let enemyTeamIndex =
+    target_team_id === 100 ? red_team_index : blue_team_index;
+
   const extraInfo = {
-    team1_index: {
-      bardon_kills: INFO.teams[0].objectives.baron.kills,
-      dragon_kills: INFO.teams[0].objectives.dragon.kills,
-      tower_kills: INFO.teams[0].objectives.tower.kills,
-    },
-    team2_index: {
-      baron_kills: INFO.teams[1].objectives.baron.kills,
-      dragon_kills: INFO.teams[1].objectives.dragon.kills,
-      tower_kills: INFO.teams[1].objectives.tower.kills,
-    },
-    total_golds,
-    total_kills,
-    players,
+    my_team: myTeam,
+    enemy_team: enemyTeam,
+    my_team_index: myTeamIndex,
+    enemy_team_index: enemyTeamIndex,
   };
 
   const D3MatchInfo = {
