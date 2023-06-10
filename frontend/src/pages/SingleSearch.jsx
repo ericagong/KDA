@@ -2,10 +2,12 @@ import { useParams } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { apis } from '../shared/axios'
 import useDidMountEffect from '../hooks/useDidMountEffect'
+import Container from '../components/PageLayout'
 import SearchBar from '../components/SearchBar'
 import Profile from '../components/single/Profile'
 import QueueSummary from '../components/single/QueueSummary'
 import MatchList from '../components/single/MatchList'
+import styled from 'styled-components'
 
 const SingleSearch = () => {
   const params = useParams()
@@ -50,6 +52,7 @@ const SingleSearch = () => {
           data: { match_id_list },
         } = await apis.get_depth2_match_info(summonerInfo.ppu_id)
 
+        console.log(match_id_list)
         setMatchIdList((prev) => [...prev, ...match_id_list])
       } catch (err) {
         console.log(err)
@@ -96,15 +99,20 @@ const SingleSearch = () => {
   }, [matchIdList])
 
   return (
-    <>
-      <h2>SingleSearch Page</h2>
+    <Container>
       <SearchBar />
-      <Profile {...summonerInfo} />
-      <QueueSummary type="자유" {...flexInfo} />
+      <SearchResultSection>
+        <Profile summonerName={summonerName} {...summonerInfo} />
+        {/* <QueueSummary type="자유" {...flexInfo} />
       <QueueSummary type="솔로" {...soloInfo} />
-      <MatchList matchInfoList={matchInfoList} />
-    </>
+      <MatchList matchInfoList={matchInfoList} /> */}
+      </SearchResultSection>
+    </Container>
   )
 }
 
 export default SingleSearch
+
+const SearchResultSection = styled.div`
+  margin-top: 50px;
+`

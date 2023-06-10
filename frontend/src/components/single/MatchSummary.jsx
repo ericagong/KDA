@@ -2,32 +2,7 @@ import { getRecentImageURL } from '../../shared/utils'
 import ChampRuneSpell from './ChampRuneSpell'
 import ItemList from './ItemList'
 import KDAIndex from './KDAIndex'
-
-const calcTime = (timestamp) => {
-  const today = new Date()
-  const playedDate = new Date(timestamp)
-  const timeDiff = today.getTime() - playedDate.getTime()
-
-  const monthDiff = parseInt(timeDiff / (1000 * 3600 * 24 * 30))
-  const dayDiff = parseInt(timeDiff / (1000 * 3600 * 24))
-  const hourDiff = parseInt(timeDiff / (1000 * 3600))
-  const minuteDiff = parseInt(timeDiff / (1000 * 60))
-
-  if (monthDiff > 0) return `${monthDiff}달 전`
-  if (dayDiff > 0) return `${dayDiff}일 전`
-  if (hourDiff > 0) return `${hourDiff}시간 전`
-  if (minuteDiff > 0) return `${minuteDiff}분 전`
-  else return `방금 전`
-}
-
-const calcDuration = (timeInSec) => {
-  const minutes = parseInt(timeInSec / 60)
-  const seconds = timeInSec % 60
-
-  if (minutes === 0) return `${seconds}초`
-  if (seconds === 0) return `${minutes}분`
-  return `${minutes}분 ${seconds}초`
-}
+import { calcTime, calcDuration } from '../../shared/utils'
 
 const MatchSummary = ({
   game_creation,
