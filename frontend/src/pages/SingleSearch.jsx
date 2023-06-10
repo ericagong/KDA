@@ -103,8 +103,8 @@ const SingleSearch = () => {
       <SearchBar />
       <SearchResultSection>
         <Profile summonerName={summonerName} {...summonerInfo} />
+        <Rank type="솔로" {...soloInfo} />
         <Rank type="자유" {...flexInfo} />
-        {/* <Rank type="솔로" {...soloInfo} /> */}
         {/* <MatchList matchInfoList={matchInfoList} /> */}
       </SearchResultSection>
     </Container>
