@@ -102,10 +102,14 @@ const SingleSearch = () => {
     <Container>
       <SearchBar />
       <SearchResultSection>
-        <Profile summonerName={summonerName} {...summonerInfo} />
-        <Rank type="솔로" {...soloInfo} />
-        <Rank type="자유" {...flexInfo} />
-        {/* <MatchList matchInfoList={matchInfoList} /> */}
+        <SummonerSection>
+          <Profile summonerName={summonerName} {...summonerInfo} />
+          <Rank type="솔로" {...soloInfo} />
+          <Rank type="자유" {...flexInfo} />
+        </SummonerSection>
+        <MatchInfoSection>
+          <MatchList matchInfoList={matchInfoList} />
+        </MatchInfoSection>
       </SearchResultSection>
     </Container>
   )
@@ -115,8 +119,15 @@ export default SingleSearch
 
 const SearchResultSection = styled.div`
   margin-top: 50px;
-
   line-height: 30px;
   font-size: 12px;
   color: #7b7a8e;
+`
+
+const SummonerSection = styled.div`
+  display: flex;
+`
+const MatchInfoSection = styled.div`
+  margin-top: 10px;
+  /* background: #fff; */
 `

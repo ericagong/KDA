@@ -17,8 +17,8 @@ const Rank = ({ type, tier, rank, league_points, wins, losses, win_rate }) => {
           <div>{`${league_points} LP`}</div>
         </MiddleSection>
         <RightSection>
-          <div className="season-wins-loses">{`${wins}승 ${losses}패`}</div>
-          <div className="season-win-rate">{`승률: ${win_rate}%`}</div>
+          <div>{`${wins}승 ${losses}패`}</div>
+          <div>{`승률: ${win_rate}%`}</div>
         </RightSection>
       </InfoSection>
     </Container>
@@ -28,7 +28,6 @@ const Rank = ({ type, tier, rank, league_points, wins, losses, win_rate }) => {
 export default Rank
 
 const Container = styled.div`
-  border-radius: 5px;
   width: 332px;
 
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.19);

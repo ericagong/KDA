@@ -36,7 +36,8 @@ const Container = styled.div`
   gap: 15px;
   box-sizing: border-box;
 
-  padding: 20px 0%;
+  padding: 20px 0;
+  width: calc(100% - 332px * 2);
 
   background: #31313c;
 `
