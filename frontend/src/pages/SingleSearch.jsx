@@ -5,7 +5,7 @@ import useDidMountEffect from '../hooks/useDidMountEffect'
 import Container from '../components/PageLayout'
 import SearchBar from '../components/SearchBar'
 import Profile from '../components/single/Profile'
-import QueueSummary from '../components/single/QueueSummary'
+import Rank from '../components/single/Rank'
 import MatchList from '../components/single/MatchList'
 import styled from 'styled-components'
 
@@ -103,9 +103,9 @@ const SingleSearch = () => {
       <SearchBar />
       <SearchResultSection>
         <Profile summonerName={summonerName} {...summonerInfo} />
-        {/* <QueueSummary type="자유" {...flexInfo} />
-      <QueueSummary type="솔로" {...soloInfo} />
-      <MatchList matchInfoList={matchInfoList} /> */}
+        <Rank type="자유" {...flexInfo} />
+        {/* <Rank type="솔로" {...soloInfo} /> */}
+        {/* <MatchList matchInfoList={matchInfoList} /> */}
       </SearchResultSection>
     </Container>
   )
@@ -115,4 +115,8 @@ export default SingleSearch
 
 const SearchResultSection = styled.div`
   margin-top: 50px;
+
+  line-height: 30px;
+  font-size: 12px;
+  color: #7b7a8e;
 `

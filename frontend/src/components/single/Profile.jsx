@@ -65,7 +65,6 @@ const Level = styled.span`
   border-radius: 10px;
 
   line-height: 20px;
-  font-size: 12px;
 
   background: rgba(32, 45, 55, 0.8);
   color: #fff;
@@ -73,10 +72,6 @@ const Level = styled.span`
 
 const InfoSection = styled.div`
   width: 80%;
-
-  line-height: 30px;
-  font-size: 12px;
-  color: #7b7a8e;
 `
 
 const Name = styled.div`
