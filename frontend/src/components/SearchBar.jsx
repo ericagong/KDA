@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { parseSummonerNames } from '../shared/utils'
 import { useNavigate } from 'react-router-dom'
+import { FaSearch } from 'react-icons/fa'
+import styled from 'styled-components'
 
 const SEARCH_MODE = {
   SINGLE: 'single',
@@ -41,23 +43,69 @@ const SearchBar = () => {
   }
 
   return (
-    <>
-      <form onSubmit={preventSubmitHandler}>
-        <input
+    <Container onSubmit={preventSubmitHandler}>
+      <LeftSection>
+        <Label>Search</Label>
+        <Input
           type="text"
-          placeholder="summoner1, summoner2, ..."
-          style={{ width: 300 }}
+          placeholder="소환사명, 소환사명, ..."
           onChange={changeSummonerNameHandler}
         />
-        <button
-          onClick={searchSummonerNameHandler}
-          disabled={summonerNames.length === 0}
-        >
-          검색
-        </button>
-      </form>
-    </>
+      </LeftSection>
+      <Button
+        onClick={searchSummonerNameHandler}
+        disabled={summonerNames.length === 0}
+      >
+        <FaSearch color="#fff" size="20" />
+      </Button>
+    </Container>
   )
 }
 
 export default SearchBar
+
+const Container = styled.form`
+  display: flex;
+  box-sizing: border-box;
+
+  justify-content: space-around;
+  align-items: center;
+  margin: 0 auto;
+
+  width: 800px;
+  height: 70px;
+
+  border-radius: 5px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.19);
+  background-color: #31313c;
+
+  color: white;
+`
+
+const LeftSection = styled.div`
+  width: calc(100% - 140px);
+`
+
+const Label = styled.div`
+  margin-bottom: 10px;
+`
+
+const Input = styled.input`
+  width: 100%;
+  border: none;
+  background: inherit;
+  color: #fff;
+
+  outline: none;
+`
+
+const Button = styled.button`
+  width: 50px;
+  height: 50px;
+  border: none;
+  background-color: transparent;
+
+  :hover {
+    cursor: pointer;
+  }
+`

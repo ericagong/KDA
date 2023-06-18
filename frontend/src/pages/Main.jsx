@@ -1,11 +1,11 @@
 import SearchBar from '../components/SearchBar'
+import Container from '../components/PageLayout'
 
 const Main = () => {
   return (
-    <>
-      Main
+    <Container>
       <SearchBar />
-    </>
+    </Container>
   )
 }
 

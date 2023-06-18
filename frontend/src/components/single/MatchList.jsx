@@ -7,17 +7,12 @@ const MatchList = ({ matchInfoList }) => {
     return (
       <>
         <MatchSummary {...matchInfo.summarized_info} />
-        <MatchDetail {...matchInfo.extra_info} />
+        {/* <MatchDetail {...matchInfo.extra_info} /> */}
       </>
     )
   })
 
-  return (
-    <>
-      <h4>MatchList</h4>
-      {matchList}
-    </>
-  )
+  return <>{matchList}</>
 }
 
 export default MatchList
